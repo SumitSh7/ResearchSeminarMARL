@@ -13,12 +13,12 @@ os.makedirs('checkpoints', exist_ok=True)
 os.makedirs('plots', exist_ok=True)
 
 # Enhanced configuration
-N_EPISODES = 10000  # Increased to 50K
-LEARNING_RATE = 0.1  # Increased to match MFQ
+N_EPISODES = 40000  # Episodes
+LEARNING_RATE = 0.05  # Rate of learning
 GAMMA = 0.99
 EPSILON_START = 1.0
-EPSILON_DECAY = 0.9995  # Modified for better exploration
-EPSILON_MIN = 0.05  # Increased minimum epsilon
+EPSILON_DECAY = 0.9998  # Modified for better exploration
+EPSILON_MIN = 0.01  # Increased minimum epsilon
 MAX_STEPS = 50  # Increased max steps
 N_AGENTS = 3
 ANALYSIS_WINDOW = 1000
@@ -312,7 +312,7 @@ t_stat, p_value = stats.ttest_ind(early, late)
 # Final visualization
 try:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f'training_rewards_iql_{timestamp}.png'
+    filename = f'training_rewards_iql_{N_EPISODES}_{timestamp}.png'
     visualize_results(reward_history, early, late, t_stat, p_value, filename=filename)
 except Exception as e:
     print(f"Visualization error: {e}")
