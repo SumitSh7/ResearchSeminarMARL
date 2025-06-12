@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c297f900-2baa-4c60-9490-eabc48fb1f3c" name="Changes" comment="Seminar Project IQL Run 12th June" />
+    <list default="true" id="c297f900-2baa-4c60-9490-eabc48fb1f3c" name="Changes" comment="Seminar Project MFQ Run 12th JuneEvening">
+      <change afterPath="$PROJECT_DIR$/mfq_q_tables.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo_iql.py" beforeDir="false" afterPath="$PROJECT_DIR$/algo_iql.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/algo_mfq.py" beforeDir="false" afterPath="$PROJECT_DIR$/algo_mfq.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -74,7 +79,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749385295691</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Seminar Project MFQ Run 12th JuneEvening">
+      <option name="closed" value="true" />
+      <created>1749743825473</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1749743825473</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -82,6 +95,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Seminar Project Beginning" />
-    <option name="LAST_COMMIT_MESSAGE" value="Seminar Project Beginning" />
+    <MESSAGE value="Merged master into main" />
+    <MESSAGE value="Seminar Project MFQ Run 12th June Evening" />
+    <MESSAGE value="Seminar Project MFQ Run 12th JuneEvening" />
+    <option name="LAST_COMMIT_MESSAGE" value="Seminar Project MFQ Run 12th JuneEvening" />
   </component>
 </project>
