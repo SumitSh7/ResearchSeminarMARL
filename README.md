@@ -36,11 +36,12 @@ The experiments are designed to evaluate learning behavior, cooperation dynamics
 ├── scripts/ # Experiment execution scripts
  ├── run_iql.py
  ├──run_mfq.py
+ ├── docs/ # Optional: Reports, setup notes, and results
 
 
 ├── plots/ # Reward graphs and performance visualizations
 
-├── docs/ # Optional: Reports, setup notes, and results
+
 
 ├── README.md # Project overview and usage guide
 
