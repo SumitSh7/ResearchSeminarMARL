@@ -47,3 +47,9 @@ The experiments are designed to evaluate learning behavior, cooperation dynamics
 ├── requirements.txt # Python dependencies
 
 ├── .gitignore # Ignored files and folders
+
+👨‍💻 Authors
+
+Sumit Shrivastava
+Graduate Student, M.Sc. Research in Computer System and Engineering
+TU Ilmenau (2025)
