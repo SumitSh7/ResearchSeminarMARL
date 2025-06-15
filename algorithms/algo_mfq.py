@@ -45,6 +45,7 @@ def save_experiment_config(config, project_root):
         json.dump(config, f, indent=4)
     return config_path
 
+'''
 def save_checkpoint(episode, agents, reward_history, filename_prefix, project_root):
     try:
         checkpoint = {
@@ -63,6 +64,7 @@ def save_checkpoint(episode, agents, reward_history, filename_prefix, project_ro
         print(f"Checkpoint saved: {filename}")
     except Exception as e:
         print(f"Error saving checkpoint: {e}")
+'''
 
 def plot_progress(reward_history, episode, project_root):
     if len(reward_history) < 1000:
@@ -126,6 +128,7 @@ def visualize_results(reward_history, early, late, t_stat, p_value, filename='tr
     plt.close()
 
 class MFQAgent:
+
     def __init__(self, obs_space, action_space, lr, gamma, epsilon, epsilon_decay, min_epsilon):
         self.lr = lr
         self.gamma = gamma
@@ -134,52 +137,38 @@ class MFQAgent:
         self.min_epsilon = min_epsilon
         self.action_space = action_space
         self.q_table = {}
-        self.visit_counts = {}
         self.last_states = []
 
     def get_state_key(self, obs):
-        return tuple(np.round(obs, 1))
+        return tuple(np.round(obs, 2))
 
     def get_default_q_values(self):
         return np.ones(self.action_space.n) * 0.1
-
-    def get_default_visit_counts(self):
-        return np.zeros(self.action_space.n)
 
     def act(self, obs):
         state = self.get_state_key(obs)
         if state not in self.q_table:
             self.q_table[state] = self.get_default_q_values()
-            self.visit_counts[state] = self.get_default_visit_counts()
-        
+
         if np.random.rand() < self.epsilon:
             return self.action_space.sample()
         return int(np.argmax(self.q_table[state]))
 
-    def learn(self, state, action, reward, next_state, mean_action, done):
+    def learn(self, state, action, reward, next_state, done, mean_action_distribution):
         state_key = self.get_state_key(state)
         next_state_key = self.get_state_key(next_state)
-        
+
         if state_key not in self.q_table:
             self.q_table[state_key] = self.get_default_q_values()
-            self.visit_counts[state_key] = self.get_default_visit_counts()
         if next_state_key not in self.q_table:
             self.q_table[next_state_key] = self.get_default_q_values()
-            self.visit_counts[next_state_key] = self.get_default_visit_counts()
-        
-        next_values = self.q_table[next_state_key]
 
-        mean_field_value = 0.7 * (0 if done else np.max(next_values)) + 0.3 * mean_action #IMPORTANT: 0.3 is the weight of mean_action
-        
-        td_target = reward + self.gamma * mean_field_value
+        # Incorporate mean action influence (simple weighted average version)
+        next_value = np.dot(self.q_table[next_state_key], mean_action_distribution) if not done else 0
+        td_target = reward + self.gamma * next_value
         td_error = td_target - self.q_table[state_key][action]
-        
-        self.visit_counts[state_key][action] += 1
-        visits = self.visit_counts[state_key][action]
-        adaptive_lr = self.lr / (1 + 0.1 * visits)
-        
-        self.q_table[state_key][action] += adaptive_lr * td_error
-        
+        self.q_table[state_key][action] += self.lr * td_error
+
         self.last_states.append(state_key)
         if len(self.last_states) > 1000:
             self.last_states.pop(0)
@@ -187,20 +176,19 @@ class MFQAgent:
     def decay_epsilon(self):
         self.epsilon = max(self.min_epsilon, self.epsilon * self.epsilon_decay)
 
+
 def train_mfq(episodes, lr, gamma, epsilon_start,
               epsilon_decay, epsilon_min, max_steps,
               n_agents, analysis_window, reward_scale, base_reward, seed, use_shaping):
-    
-    # Set and record the seed
+
     used_seed = set_global_seeds(seed)
     print(f"Using seed: {used_seed}")
-    
+
     project_root = get_project_root()
     os.makedirs(os.path.join(project_root, 'checkpoints'), exist_ok=True)
     os.makedirs(os.path.join(project_root, 'plots'), exist_ok=True)
     os.makedirs(os.path.join(project_root, 'docs'), exist_ok=True)
-    
-    # Create experiment configuration
+
     config = {
         'algorithm': 'MFQ',
         'seed': used_seed,
@@ -216,30 +204,25 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
             'analysis_window': analysis_window,
             'reward_scale': reward_scale,
             'base_reward': base_reward
-
         },
         'system_info': get_system_info()
     }
-    
-    # Save configuration
+
     config_path = save_experiment_config(config, project_root)
     print(f"Experiment configuration saved to: {config_path}")
 
-    # Initialize environment
     env = parallel_env(N=n_agents, local_ratio=0.7, max_cycles=max_steps)
     env = ss.dtype_v0(env, dtype="float32")
     env = ss.clip_reward_v0(env)
 
-    # Initialize agents
     agents = {
         name: MFQAgent(env.observation_space(name), env.action_space(name),
-                      lr, gamma, epsilon_start, epsilon_decay, epsilon_min)
+                       lr, gamma, epsilon_start, epsilon_decay, epsilon_min)
         for name in env.possible_agents
     }
 
     reward_history = []
-    episode_lengths = []
-    best_average_reward = float('-inf')
+    best_avg = float('-inf')
 
     for episode in range(episodes):
         if episode % 100 == 0:
@@ -248,20 +231,24 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
         obs, _ = env.reset(seed=episode)
         dones = {agent: False for agent in env.possible_agents}
         total_reward = 0
-        step_count = 0
+        step = 0
 
-        while not all(dones.values()) and step_count < max_steps:
-            step_count += 1
+        while not all(dones.values()) and step < max_steps:
+            step += 1
             active_agents = env.agents
             if not active_agents:
                 break
 
-            actions = {agent: agents[agent].act(obs[agent]) 
-                      for agent in active_agents if not dones[agent]}
+            actions = {agent: agents[agent].act(obs[agent]) for agent in active_agents if not dones[agent]}
+            action_counts = np.zeros(env.action_space(env.agents[0]).n)
+            for act in actions.values():
+                action_counts[act] += 1
+            mean_action_dist = action_counts / max(1, len(actions))
+
             next_obs, rewards, terminations, truncations, _ = env.step(actions)
 
-            # Calculate mean action for mean field
-            mean_action = np.mean([action for action in actions.values()])
+            step_reward = sum(rewards.values())
+            total_reward += step_reward
 
             for agent in env.possible_agents:
                 dones[agent] = terminations.get(agent, False) or truncations.get(agent, False)
@@ -283,49 +270,62 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
                     if use_shaping:
                         shaped_reward = rewards[agent]
                     else:
-                        shaped_reward = (rewards[agent] + cooperation_bonus + distance_penalty + base_reward) * reward_scale
+                        shaped_reward = (rewards[agent] + cooperation_bonus + distance_penalty) * reward_scale
 
                     is_done = terminations.get(agent, False) or truncations.get(agent, False)
-                    agents[agent].learn(obs[agent], actions[agent], shaped_reward, 
-                                     next_obs[agent], mean_action, is_done)
+                    agents[agent].learn(obs[agent], actions[agent], shaped_reward, next_obs[agent], is_done, mean_action_dist)
 
             obs = next_obs
-            total_reward += sum(rewards.values()) + base_reward
 
-        average_reward = total_reward / step_count  # Calculate average reward per step
-        reward_history.append(average_reward)
-        episode_lengths.append(step_count)
-
+        reward_history.append(total_reward)
 
         if episode > 0 and episode % 10000 == 0:
-            save_checkpoint(episode, agents, reward_history, 'mfq', project_root)
             recent_rewards = reward_history[-1000:]
             avg_reward = np.mean(recent_rewards)
-            if avg_reward > best_average_reward:
-                best_average_reward = avg_reward
-                save_checkpoint(episode, agents, reward_history, 'best_mfq', project_root)
-
-        if episode > 0 and episode % 10000 == 0:
-            plot_progress(reward_history, episode, project_root)
-
-        if episode > 10000 and episode % 5000 == 0:
-            if check_learning_collapse(reward_history):
-                print(f"Warning: Potential learning collapse detected at episode {episode}!")
+            if avg_reward > best_avg:
+                best_avg = avg_reward
 
         for agent in agents.values():
             agent.decay_epsilon()
 
         if episode % 100 == 0:
-            print(f"Episode {episode} completed in {step_count} steps with total reward: {total_reward:.2f}")
+            print(f"Episode {episode} completed in {step} steps with total reward: {total_reward:.2f}")
 
-    # Analysis
+    # Post training stats
     early = np.array(reward_history[:analysis_window])
     late = np.array(reward_history[-analysis_window:])
     print("\nPerformance Analysis:")
     print(f"Early mean±std: {early.mean():.2f} ± {early.std():.2f}")
     print(f"Late mean±std: {late.mean():.2f} ± {late.std():.2f}")
     print(f"Improvement: {((late.mean() - early.mean()) / abs(early.mean()) * 100):.2f}%")
-    
+
+    t_stat, p_value = stats.ttest_ind(early, late)
+    print("Statistical significance:")
+    print(f"t-statistic: {t_stat:.3f}")
+    print(f"p-value: {'< 1e-10' if p_value < 1e-10 else f'{p_value:.2e}'}")
+
+    try:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = os.path.join(project_root, "docs", f"training_rewards_mfq_{use_shaping}_{episodes}_{timestamp}.png")
+        params_text = (
+            f"Parameters:\n"
+            f"Seed: {used_seed} | Learning Rate: {lr:<6} | Episodes: {episodes:<6}\n"
+            f"Agents: {n_agents:<3} | Gamma: {gamma:<4} | Epsilon Start: {epsilon_start:<4}\n"
+            f"Epsilon Decay: {epsilon_decay:<7} | Epsilon Min: {epsilon_min:<4} | Max Steps: {max_steps}"
+        )
+        visualize_results(reward_history, early, late, t_stat, p_value, filename=filename, params_text=params_text)
+    except Exception as e:
+        print(f"Visualization error: {e}")
+        plt.close('all')
+
+    return reward_history, used_seed, config_path
+    early = np.array(reward_history[:analysis_window])
+    late = np.array(reward_history[-analysis_window:])
+    print("\nPerformance Analysis:")
+    print(f"Early mean±std: {early.mean():.2f} ± {early.std():.2f}")
+    print(f"Late mean±std: {late.mean():.2f} ± {late.std():.2f}")
+    print(f"Improvement: {((late.mean() - early.mean()) / abs(early.mean()) * 100):.2f}%")
+
     t_stat, p_value = stats.ttest_ind(early, late)
     print("Statistical significance:")
     print(f"t-statistic: {t_stat:.3f}")
@@ -347,5 +347,5 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
     except Exception as e:
         print(f"Visualization error: {e}")
         plt.close('all')
-    
+
     return reward_history, used_seed, config_path

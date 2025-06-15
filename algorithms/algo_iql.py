@@ -45,6 +45,7 @@ def save_experiment_config(config, project_root):
         json.dump(config, f, indent=4)
     return config_path
 
+'''
 def save_checkpoint(episode, agents, reward_history, filename_prefix, project_root):
     try:
         checkpoint = {
@@ -63,6 +64,7 @@ def save_checkpoint(episode, agents, reward_history, filename_prefix, project_ro
         print(f"Checkpoint saved: {filename}")
     except Exception as e:
         print(f"Error saving checkpoint: {e}")
+'''
 
 def plot_progress(reward_history, episode, project_root):
     if len(reward_history) < 1000:
@@ -179,6 +181,11 @@ def train_iql(episodes, lr, gamma, epsilon_start,
     # Set and record the seed
     used_seed = set_global_seeds(seed)
     print(f"Using seed: {used_seed}")
+    print("IQL CONFIG:")
+    print(f"Episodes: {episodes}, LR: {lr}, Gamma: {gamma}, Epsilon: {epsilon_start}")
+    print(f"Eps Decay: {epsilon_decay}, Min Eps: {epsilon_min}, Steps: {max_steps}")
+    print(f"Agents: {n_agents}, Reward Scale: {reward_scale}, Base Reward: {base_reward}")
+    print(f"Seed: {seed}, Shaping: {use_shaping}")
     
     project_root = get_project_root()
     os.makedirs(os.path.join(project_root, 'checkpoints'), exist_ok=True)
@@ -282,13 +289,13 @@ def train_iql(episodes, lr, gamma, epsilon_start,
         reward_history.append(total_reward)
         episode_lengths.append(step_count)
 
-        if episode > 0 and episode % 10000 == 0:
+        '''if episode > 0 and episode % 10000 == 0:
             save_checkpoint(episode, agents, reward_history, 'iql', project_root)
             recent_rewards = reward_history[-1000:]
             avg_reward = np.mean(recent_rewards)
             if avg_reward > best_average_reward:
                 best_average_reward = avg_reward
-                save_checkpoint(episode, agents, reward_history, 'best_iql', project_root)
+                save_checkpoint(episode, agents, reward_history, 'best_iql', project_root) '''
 
         if episode > 0 and episode % 10000 == 0:
             plot_progress(reward_history, episode, project_root)
