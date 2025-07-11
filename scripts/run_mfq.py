@@ -11,9 +11,9 @@ def main():
 
     # Core hyperparameters
     parser.add_argument("--episodes", type=int, default=5000, help="Number of training episodes")
-    parser.add_argument("--lr", type=float, default=0.005, help="Learning rate")
+    parser.add_argument("--lr", type=float, default=0.01, help="Learning rate")
     parser.add_argument("--gamma", type=float, default=0.9, help="Discount factor")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducibility")
+    parser.add_argument("--seed", type=int, default=424242427, help="Random seed for reproducibility")
 
     # Epsilon schedule
     parser.add_argument("--epsilon_start", type=float, default=1.0, help="Starting value for epsilon")
@@ -21,7 +21,7 @@ def main():
     parser.add_argument("--epsilon_min", type=float, default=0.15, help="Minimum value for epsilon")
 
     # Environment and learning settings
-    parser.add_argument("--max_steps", type=int, default=50, help="Maximum number of steps per episode")
+    parser.add_argument("--max_steps", type=int, default=75, help="Maximum number of steps per episode")
     parser.add_argument("--n_agents", type=int, default=3, help="Number of agents in the environment")
     parser.add_argument("--analysis_window", type=int, default=2000, help="Window size for analysis")
     parser.add_argument("--base_reward", type=float, default=0.2, help="Base reward value")

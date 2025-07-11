@@ -13,6 +13,11 @@ import torch
 import json
 from collections import defaultdict
 
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+a = torch.randn(10000, 10000).to(device)
+b = torch.matmul(a, a)
+
 def get_project_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,7 +50,7 @@ def save_experiment_config(config, project_root):
         json.dump(config, f, indent=4)
     return config_path
 
-'''
+
 def save_checkpoint(episode, agents, reward_history, filename_prefix, project_root):
     try:
         checkpoint = {
@@ -53,7 +58,7 @@ def save_checkpoint(episode, agents, reward_history, filename_prefix, project_ro
             'reward_history': reward_history,
             'agents': {name: {
                 'q_table': dict(agent.q_table),
-                'visit_counts': dict(agent.visit_counts),
+                #'visit_counts': dict(agent.visit_counts),
                 'epsilon': agent.epsilon
             } for name, agent in agents.items()}
         }
@@ -64,7 +69,7 @@ def save_checkpoint(episode, agents, reward_history, filename_prefix, project_ro
         print(f"Checkpoint saved: {filename}")
     except Exception as e:
         print(f"Error saving checkpoint: {e}")
-'''
+
 
 def plot_progress(reward_history, episode, project_root):
     if len(reward_history) < 1000:
@@ -183,11 +188,17 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
 
     used_seed = set_global_seeds(seed)
     print(f"Using seed: {used_seed}")
+    print("MFQ CONFIG:")
+    print(f"Episodes: {episodes}, LR: {lr}, Gamma: {gamma}, Epsilon: {epsilon_start}")
+    print(f"Eps Decay: {epsilon_decay}, Min Eps: {epsilon_min}, Steps: {max_steps}")
+    print(f"Agents: {n_agents}, Reward Scale: {reward_scale}, Base Reward: {base_reward}")
+    print(f"Seed: {seed}, Shaping: {use_shaping}")
 
     project_root = get_project_root()
     os.makedirs(os.path.join(project_root, 'checkpoints'), exist_ok=True)
     os.makedirs(os.path.join(project_root, 'plots'), exist_ok=True)
     os.makedirs(os.path.join(project_root, 'docs'), exist_ok=True)
+    os.makedirs(os.path.join(project_root, 'experiment config'), exist_ok=True)
 
     config = {
         'algorithm': 'MFQ',
@@ -290,6 +301,14 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
 
         if episode % 100 == 0:
             print(f"Episode {episode} completed in {step} steps with total reward: {total_reward:.2f}")
+
+        if episode > 0 and episode % 5000 == 0:
+                    save_checkpoint(episode, agents, reward_history, 'iql', project_root)
+                    recent_rewards = reward_history[-1000:]
+                    avg_reward = np.mean(recent_rewards)
+                    '''if avg_reward > best_average_reward:
+                        best_average_reward = avg_reward
+                        save_checkpoint(episode, agents, reward_history, 'best_iql', project_root)'''
 
     # Post training stats
     early = np.array(reward_history[:analysis_window])
