@@ -4,31 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c297f900-2baa-4c60-9490-eabc48fb1f3c" name="Changes" comment="Seminar Project IQL Seeded Run Update MFQ 14th June">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Comparison/Yang1997/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Comparison/Yang1997/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/algo_iql.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/algo_iql.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/algorithms/algo_mfq.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/algo_mfq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_10000_20250613_000852.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_20000_20250613_000236.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_20250612_161235.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_20250612_165057.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_20250612_170019.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_20250612_183055.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_20250612_234713.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_30000_20250613_003053.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_iql_40000_20250613_010421.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_mfq_20250612_175337.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_mfq_20250612_180058.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_mfq_20250612_184250.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_mfq_20250612_184626.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/Old Screenshots/training_rewards_mfq_20250612_192042.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/run_iql.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/run_iql.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/run_mfq.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/run_mfq.py" afterDir="false" />
-    </list>
+    <list default="true" id="c297f900-2baa-4c60-9490-eabc48fb1f3c" name="Changes" comment="Seminar Project Added Yang 1997 IQL Comparison Code to help visualize results." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,7 +92,7 @@
       <workItem from="1751794281332" duration="720000" />
       <workItem from="1751914926974" duration="3000" />
       <workItem from="1752151694936" duration="6003000" />
-      <workItem from="1752235310828" duration="4823000" />
+      <workItem from="1752235310828" duration="5741000" />
     </task>
     <task id="LOCAL-00001" summary="Seminar Project Beginning">
       <option name="closed" value="true" />
@@ -166,7 +142,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749990878426</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Seminar Project Added Yang 1997 IQL Comparison Code to help visualize results.">
+      <option name="closed" value="true" />
+      <created>1752240458087</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1752240458087</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -181,6 +165,7 @@
     <MESSAGE value="Seminar Project IQL Multiple Episode Run 13th June" />
     <MESSAGE value="Seminar Project IQL Seeded Run Check 14th June" />
     <MESSAGE value="Seminar Project IQL Seeded Run Update MFQ 14th June" />
-    <option name="LAST_COMMIT_MESSAGE" value="Seminar Project IQL Seeded Run Update MFQ 14th June" />
+    <MESSAGE value="Seminar Project Added Yang 1997 IQL Comparison Code to help visualize results." />
+    <option name="LAST_COMMIT_MESSAGE" value="Seminar Project Added Yang 1997 IQL Comparison Code to help visualize results." />
   </component>
 </project>
