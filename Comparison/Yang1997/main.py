@@ -80,8 +80,8 @@ def evaluate():
         print(f"Error during evaluation: {str(e)}")
         import traceback
         traceback.print_exc()
-    train_config = ConfigObjectFactory.get_train_config()
-    env_config = ConfigObjectFactory.get_environment_config()
+        train_config = ConfigObjectFactory.get_train_config()
+        env_config = ConfigObjectFactory.get_environment_config()
     csv_filename = os.path.join(train_config.result_dir, env_config.learn_policy, "result.csv")
 
     # Read all rewards from CSV

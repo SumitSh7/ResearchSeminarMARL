@@ -10,6 +10,7 @@ import supersuit as ss
 import random
 import platform
 import torch
+import csv
 import json
 from collections import defaultdict
 
@@ -21,16 +22,6 @@ b = torch.matmul(a, a)
 def get_project_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def get_system_info():
-    """Get system and environment information for reproducibility"""
-    return {
-        'python_version': platform.python_version(),
-        'platform': platform.platform(),
-        'numpy_version': np.__version__,
-        'torch_version': torch.__version__,
-        'timestamp': datetime.now().strftime("%Y%m%d_%H%M%S")
-    }
-
 def set_global_seeds(seed):
     """Set seeds for all random number generators"""
     if seed is None:
@@ -41,35 +32,6 @@ def set_global_seeds(seed):
     torch.manual_seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     return seed
-
-def save_experiment_config(config, project_root):
-    """Save experiment configuration"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    config_path = os.path.join(project_root, "experiment config", f"experiment_config_mfq_{timestamp}.json")
-    with open(config_path, 'w') as f:
-        json.dump(config, f, indent=4)
-    return config_path
-
-
-def save_checkpoint(episode, agents, reward_history, filename_prefix, project_root):
-    try:
-        checkpoint = {
-            'episode': episode,
-            'reward_history': reward_history,
-            'agents': {name: {
-                'q_table': dict(agent.q_table),
-                #'visit_counts': dict(agent.visit_counts),
-                'epsilon': agent.epsilon
-            } for name, agent in agents.items()}
-        }
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(project_root, "checkpoints", f"{filename_prefix}_checkpoint_ep{episode}_{timestamp}.pkl")
-        with open(filename, 'wb') as f:
-            pickle.dump(checkpoint, f)
-        print(f"Checkpoint saved: {filename}")
-    except Exception as e:
-        print(f"Error saving checkpoint: {e}")
-
 
 def plot_progress(reward_history, episode, project_root):
     if len(reward_history) < 1000:
@@ -85,13 +47,6 @@ def plot_progress(reward_history, episode, project_root):
     filename = os.path.join(project_root, "plots", f"mfq_progress_ep{episode}_{timestamp}.png")
     plt.savefig(filename)
     plt.close()
-
-def check_learning_collapse(reward_history, window=1000):
-    if len(reward_history) < window * 2:
-        return False
-    recent = np.mean(reward_history[-window:])
-    previous = np.mean(reward_history[-2*window:-window])
-    return recent < 0.5 * previous
 
 def visualize_results(reward_history, early, late, t_stat, p_value, filename='training_rewards_mfq.png', params_text=''):
     plt.figure(figsize=(12, 8))
@@ -199,6 +154,17 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
     os.makedirs(os.path.join(project_root, 'plots'), exist_ok=True)
     os.makedirs(os.path.join(project_root, 'docs'), exist_ok=True)
     os.makedirs(os.path.join(project_root, 'experiment config'), exist_ok=True)
+    
+    # Add CSV data logging capability
+    results_dir = os.path.join(project_root, "results", "mfq")
+    os.makedirs(results_dir, exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    csv_filename = os.path.join(results_dir, f"mfq_results_{timestamp}.csv")
+    
+    # Initialize CSV buffer for efficient writing
+    result_buffer = []
+    buffer_size = 100
 
     config = {
         'algorithm': 'MFQ',
@@ -215,12 +181,8 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
             'analysis_window': analysis_window,
             'reward_scale': reward_scale,
             'base_reward': base_reward
-        },
-        'system_info': get_system_info()
+        }
     }
-
-    config_path = save_experiment_config(config, project_root)
-    print(f"Experiment configuration saved to: {config_path}")
 
     env = parallel_env(N=n_agents, local_ratio=0.7, max_cycles=max_steps)
     env = ss.dtype_v0(env, dtype="float32")
@@ -235,82 +197,91 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
     reward_history = []
     best_avg = float('-inf')
 
-    for episode in range(episodes):
-        if episode % 100 == 0:
-            print(f"Starting episode {episode}")
+    try:
+        for episode in range(episodes):
+            if episode % 100 == 0:
+                print(f"Starting episode {episode}")
 
-        obs, _ = env.reset(seed=episode)
-        dones = {agent: False for agent in env.possible_agents}
-        total_reward = 0
-        step = 0
+            obs, _ = env.reset(seed=episode)
+            dones = {agent: False for agent in env.possible_agents}
+            total_reward = 0
+            step = 0
 
-        while not all(dones.values()) and step < max_steps:
-            step += 1
-            active_agents = env.agents
-            if not active_agents:
-                break
+            while not all(dones.values()) and step < max_steps:
+                step += 1
+                active_agents = env.agents
+                if not active_agents:
+                    break
 
-            actions = {agent: agents[agent].act(obs[agent]) for agent in active_agents if not dones[agent]}
-            action_counts = np.zeros(env.action_space(env.agents[0]).n)
-            for act in actions.values():
-                action_counts[act] += 1
-            mean_action_dist = action_counts / max(1, len(actions))
+                actions = {agent: agents[agent].act(obs[agent]) for agent in active_agents if not dones[agent]}
+                action_counts = np.zeros(env.action_space(env.agents[0]).n)
+                for act in actions.values():
+                    action_counts[act] += 1
+                mean_action_dist = action_counts / max(1, len(actions))
 
-            next_obs, rewards, terminations, truncations, _ = env.step(actions)
+                next_obs, rewards, terminations, truncations, _ = env.step(actions)
 
-            step_reward = sum(rewards.values())
-            total_reward += step_reward
+                step_reward = sum(rewards.values())
+                total_reward += step_reward
 
-            for agent in env.possible_agents:
-                dones[agent] = terminations.get(agent, False) or truncations.get(agent, False)
+                for agent in env.possible_agents:
+                    dones[agent] = terminations.get(agent, False) or truncations.get(agent, False)
 
-            for agent in active_agents:
-                if not dones[agent]:
-                    agent_pos = next_obs[agent][:2]
-                    cooperation_bonus = 0
-                    distance_penalty = 0
-                    for other_agent in active_agents:
-                        if other_agent != agent:
-                            other_pos = next_obs[other_agent][:2]
-                            distance = np.linalg.norm(agent_pos - other_pos)
-                            if 0.5 < distance < 2.0:
-                                cooperation_bonus += 2.0
-                            elif distance <= 0.5:
-                                distance_penalty -= 1.0
+                for agent in active_agents:
+                    if not dones[agent]:
+                        agent_pos = next_obs[agent][:2]
+                        cooperation_bonus = 0
+                        distance_penalty = 0
+                        for other_agent in active_agents:
+                            if other_agent != agent:
+                                other_pos = next_obs[other_agent][:2]
+                                distance = np.linalg.norm(agent_pos - other_pos)
+                                if 0.5 < distance < 2.0:
+                                    cooperation_bonus += 2.0
+                                elif distance <= 0.5:
+                                    distance_penalty -= 1.0
 
-                    if use_shaping:
-                        shaped_reward = rewards[agent]
-                    else:
-                        shaped_reward = (rewards[agent] + cooperation_bonus + distance_penalty) * reward_scale
+                        if use_shaping:
+                            shaped_reward = rewards[agent]
+                        else:
+                            shaped_reward = (rewards[agent] + cooperation_bonus + distance_penalty) * reward_scale
 
-                    is_done = terminations.get(agent, False) or truncations.get(agent, False)
-                    agents[agent].learn(obs[agent], actions[agent], shaped_reward, next_obs[agent], is_done, mean_action_dist)
+                        is_done = terminations.get(agent, False) or truncations.get(agent, False)
+                        agents[agent].learn(obs[agent], actions[agent], shaped_reward, next_obs[agent], is_done, mean_action_dist)
 
-            obs = next_obs
+                obs = next_obs
 
-        reward_history.append(total_reward)
+            reward_history.append(total_reward)
+            result_buffer.append([episode, total_reward])
+            
+            # Write CSV data in batches for efficiency
+            if len(result_buffer) >= buffer_size:
+                with open(csv_filename, 'a', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerows(result_buffer)
+                result_buffer = []
 
-        if episode > 0 and episode % 10000 == 0:
-            recent_rewards = reward_history[-1000:]
-            avg_reward = np.mean(recent_rewards)
-            if avg_reward > best_avg:
-                best_avg = avg_reward
+            if episode > 0 and episode % 10000 == 0:
+                recent_rewards = reward_history[-1000:]
+                avg_reward = np.mean(recent_rewards)
+                if avg_reward > best_avg:
+                    best_avg = avg_reward
 
-        for agent in agents.values():
-            agent.decay_epsilon()
+            for agent in agents.values():
+                agent.decay_epsilon()
 
-        if episode % 100 == 0:
-            print(f"Episode {episode} completed in {step} steps with total reward: {total_reward:.2f}")
+            if episode % 100 == 0:
+                print(f"Episode {episode} completed in {step} steps with total reward: {total_reward:.2f}")
+                
+    finally:
+        env.close()
+        # Write any remaining buffered data
+        if result_buffer:
+            with open(csv_filename, 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(result_buffer)
 
-        if episode > 0 and episode % 5000 == 0:
-                    save_checkpoint(episode, agents, reward_history, 'iql', project_root)
-                    recent_rewards = reward_history[-1000:]
-                    avg_reward = np.mean(recent_rewards)
-                    '''if avg_reward > best_average_reward:
-                        best_average_reward = avg_reward
-                        save_checkpoint(episode, agents, reward_history, 'best_iql', project_root)'''
-
-    # Post training stats
+    # Rest of the function remains the same...
     early = np.array(reward_history[:analysis_window])
     late = np.array(reward_history[-analysis_window:])
     print("\nPerformance Analysis:")
@@ -324,7 +295,6 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
     print(f"p-value: {'< 1e-10' if p_value < 1e-10 else f'{p_value:.2e}'}")
 
     try:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(project_root, "docs", f"training_rewards_mfq_{use_shaping}_{episodes}_{timestamp}.png")
         params_text = (
             f"Parameters:\n"
@@ -337,34 +307,4 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
         print(f"Visualization error: {e}")
         plt.close('all')
 
-    return reward_history, used_seed, config_path
-    early = np.array(reward_history[:analysis_window])
-    late = np.array(reward_history[-analysis_window:])
-    print("\nPerformance Analysis:")
-    print(f"Early mean±std: {early.mean():.2f} ± {early.std():.2f}")
-    print(f"Late mean±std: {late.mean():.2f} ± {late.std():.2f}")
-    print(f"Improvement: {((late.mean() - early.mean()) / abs(early.mean()) * 100):.2f}%")
-
-    t_stat, p_value = stats.ttest_ind(early, late)
-    print("Statistical significance:")
-    print(f"t-statistic: {t_stat:.3f}")
-    if p_value < 1e-10:
-        print("p-value: < 1e-10")
-    else:
-        print(f"p-value: {p_value:.2e}")
-
-    try:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(project_root, "docs", f"training_rewards_mfq_{use_shaping}_{episodes}_{timestamp}.png")
-        params_text = (
-            f"Parameters:\n"
-            f"Seed: {used_seed} | Learning Rate: {lr:<6} | Episodes: {episodes:<6}\n"
-            f"Agents: {n_agents:<3} | Gamma: {gamma:<4} | Epsilon Start: {epsilon_start:<4}\n"
-            f"Epsilon Decay: {epsilon_decay:<7} | Epsilon Min: {epsilon_min:<4} | Max Steps: {max_steps}"
-        )
-        visualize_results(reward_history, early, late, t_stat, p_value, filename=filename, params_text=params_text)
-    except Exception as e:
-        print(f"Visualization error: {e}")
-        plt.close('all')
-
-    return reward_history, used_seed, config_path
+    return reward_history, used_seed, csv_filename
