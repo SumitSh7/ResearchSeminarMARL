@@ -295,7 +295,7 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
     print(f"p-value: {'< 1e-10' if p_value < 1e-10 else f'{p_value:.2e}'}")
 
     try:
-        filename = os.path.join(project_root, "docs", f"training_rewards_mfq_{use_shaping}_{episodes}_{timestamp}.png")
+        filename = os.path.join(project_root, "docs", f"MFQtrain_{episodes}_{lr}_{use_shaping}_{epsilon_decay}_{timestamp}.png")
         params_text = (
             f"Parameters:\n"
             f"Seed: {used_seed} | Learning Rate: {lr:<6} | Episodes: {episodes:<6}\n"
