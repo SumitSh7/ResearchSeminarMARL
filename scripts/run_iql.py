@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run IQL training")
 
     # Core hyperparameters
-    parser.add_argument("--episodes", type=int, default=10000, help="Number of training episodes")
+    parser.add_argument("--episodes", type=int, default=1000, help="Number of training episodes")
     parser.add_argument("--lr", type=float, default=0.1, help="Learning rate")
     parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor")
     parser.add_argument("--seed", type=int, default=424242427, help="Random seed for reproducibility")

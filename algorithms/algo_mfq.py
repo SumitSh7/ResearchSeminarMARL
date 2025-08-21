@@ -44,11 +44,11 @@ def plot_progress(reward_history, episode, project_root):
     plt.xlabel('Episode')
     plt.ylabel('Average Reward')
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = os.path.join(project_root, "plots", f"mfq_progress_ep{episode}_{timestamp}.png")
-    plt.savefig(filename)
+    filename = os.path.join(project_root, "plots", f"mfq_progress_ep{episode}_{timestamp}.pdf")  # Changed to .pdf
+    plt.savefig(filename, bbox_inches='tight', format='pdf')  # Added format parameter
     plt.close()
 
-def visualize_results(reward_history, early, late, t_stat, p_value, filename='training_rewards_mfq.png', params_text=''):
+def visualize_results(reward_history, early, late, t_stat, p_value, filename='training_rewards_mfq.pdf', params_text=''):
     plt.figure(figsize=(12, 8))
     gs = plt.GridSpec(2, 1, height_ratios=[1, 4])
     
@@ -57,7 +57,7 @@ def visualize_results(reward_history, early, late, t_stat, p_value, filename='tr
     ax1.axis('off')
     
     ax2 = plt.subplot(gs[1])
-    ax2.plot(reward_history, alpha=0.2, color='blue', label='Raw rewards')
+    '''ax2.plot(reward_history, alpha=0.2, color='blue', label='Raw rewards')'''
     
     window_short = 100
     window_long = 500
@@ -82,7 +82,7 @@ def visualize_results(reward_history, early, late, t_stat, p_value, filename='tr
              transform=ax2.transAxes, bbox=dict(facecolor='white', alpha=0.8))
     
     plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.savefig(filename, bbox_inches='tight', format='pdf')  # Changed for PDF
     print(f"Plot saved as {filename}")
     plt.show()
     plt.close()
@@ -160,7 +160,7 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
     os.makedirs(results_dir, exist_ok=True)
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    csv_filename = os.path.join(results_dir, f"mfq_results_{timestamp}.csv")
+    csv_filename = os.path.join(results_dir, f"MFQ_{episodes}_{lr}_{epsilon_decay}_{timestamp}.csv")
     
     # Initialize CSV buffer for efficient writing
     result_buffer = []
@@ -295,7 +295,12 @@ def train_mfq(episodes, lr, gamma, epsilon_start,
     print(f"p-value: {'< 1e-10' if p_value < 1e-10 else f'{p_value:.2e}'}")
 
     try:
-        filename = os.path.join(project_root, "docs", f"MFQtrain_{episodes}_{lr}_{use_shaping}_{epsilon_decay}_{timestamp}.png")
+
+        plots_dir = os.path.join(project_root, "plots")
+        os.makedirs(plots_dir, exist_ok=True)  # Ensure directory exists
+        filename = os.path.join(plots_dir,
+                                f"MFQ_{episodes}_{lr}_{epsilon_decay}_{timestamp}.pdf")  # Changed to .pdf
+
         params_text = (
             f"Parameters:\n"
             f"Seed: {used_seed} | Learning Rate: {lr:<6} | Episodes: {episodes:<6}\n"

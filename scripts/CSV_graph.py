@@ -27,7 +27,7 @@ def visualize_results(reward_history, early, late, t_stat, p_value, filename='re
     ax1.axis('off')
 
     ax2 = plt.subplot(gs[1])
-    ax2.plot(reward_history, alpha=0.2, color='blue', label='Raw rewards')
+    '''ax2.plot(reward_history, alpha=0.2, color='blue', label='Raw rewards')'''
 
     window_short = 100
     window_long = 500

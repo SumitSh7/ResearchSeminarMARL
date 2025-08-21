@@ -4,18 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c297f900-2baa-4c60-9490-eabc48fb1f3c" name="Changes" comment="Seminar Project Added Yang 1997 IQL Comparison Code to help visualize results.">
-      <change afterPath="$PROJECT_DIR$/plots/CSV_graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="c297f900-2baa-4c60-9490-eabc48fb1f3c" name="Changes" comment="Seminar, MFQ update  with CSV">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Comparison/Yang1997/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Comparison/Yang1997/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/models/independent_ppo/ppo_actor.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/models/independent_ppo/ppo_critic.pth" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/results/independent_ppo/result.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Comparison/Yang1997/results/independent_ppo/training_visualization_20250711_143355.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/algorithms/algo_iql.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/algo_iql.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/algorithms/algo_mfq.py" beforeDir="false" afterPath="$PROJECT_DIR$/algorithms/algo_mfq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/CSV_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/CSV_graph.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/run_iql.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/run_iql.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/run_mfq.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/run_mfq.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,6 +103,8 @@
       <workItem from="1753531770947" duration="1952000" />
       <workItem from="1753633091990" duration="2083000" />
       <workItem from="1754827870418" duration="1145000" />
+      <workItem from="1754829948667" duration="1454000" />
+      <workItem from="1755766062423" duration="1676000" />
     </task>
     <task id="LOCAL-00001" summary="Seminar Project Beginning">
       <option name="closed" value="true" />
@@ -181,11 +178,38 @@
       <option name="project" value="LOCAL" />
       <updated>1752244433260</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Seminar, MFQ update  with CSV">
+      <option name="closed" value="true" />
+      <created>1754830272341</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1754830272341</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Seminar, MFQ update  with CSV">
+      <option name="closed" value="true" />
+      <created>1754830415220</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1754830415220</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <ignored-roots>
@@ -200,6 +224,7 @@
     <MESSAGE value="Seminar Project IQL Seeded Run Check 14th June" />
     <MESSAGE value="Seminar Project IQL Seeded Run Update MFQ 14th June" />
     <MESSAGE value="Seminar Project Added Yang 1997 IQL Comparison Code to help visualize results." />
-    <option name="LAST_COMMIT_MESSAGE" value="Seminar Project Added Yang 1997 IQL Comparison Code to help visualize results." />
+    <MESSAGE value="Seminar, MFQ update  with CSV" />
+    <option name="LAST_COMMIT_MESSAGE" value="Seminar, MFQ update  with CSV" />
   </component>
 </project>
