@@ -1,3 +1,10 @@
+import os
+from datetime import datetime
+
+# Get project root directory (assuming this script is in the project root or you need to adjust the path)
+def get_project_root():
+    return os.path.dirname(os.path.abspath(__file__))
+
 # Prepare reward history
 reward_history = df.iloc[:, 0].values  # extract the single column
 
@@ -17,8 +24,8 @@ params_text = (
 ).format(len(reward_history))
 
 
-# Define the visualization function again (same as before)
-def visualize_results(reward_history, early, late, t_stat, p_value, filename='recreated_plot.png', params_text=''):
+# Define the visualization function for PDF output
+def visualize_results(reward_history, early, late, t_stat, p_value, filename='recreated_plot.pdf', params_text=''):
     plt.figure(figsize=(12, 8))
     gs = plt.GridSpec(2, 1, height_ratios=[1, 4])
 
@@ -52,11 +59,21 @@ def visualize_results(reward_history, early, late, t_stat, p_value, filename='re
              transform=ax2.transAxes, bbox=dict(facecolor='white', alpha=0.8))
 
     plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.savefig(filename, bbox_inches='tight', format='pdf')
+    print(f"Plot saved as {filename}")
     plt.show()
     plt.close()
 
 
-# Generate and show the plot
-visualize_results(reward_history, early, late, t_stat, p_value, filename='/mnt/data/recreated_plot.png',
+# Create the regenerated graphs directory structure
+project_root = get_project_root()
+regenerated_graphs_dir = os.path.join(project_root, "plots", "regenerated_graphs")
+os.makedirs(regenerated_graphs_dir, exist_ok=True)
+
+# Generate timestamp for unique filename
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+filename = os.path.join(regenerated_graphs_dir, f"recreated_plot_{timestamp}.pdf")
+
+# Generate and show the plot with PDF output in the correct directory
+visualize_results(reward_history, early, late, t_stat, p_value, filename=filename,
                   params_text=params_text)
